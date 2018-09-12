@@ -38,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
     //<mvc:interceptors/>
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        logger.debug("配置默认拦截器........");
+        logger.debug("配置拦截器........");
         registry.addInterceptor(new CommonInterceptor()).addPathPatterns("/**").excludePathPatterns("/admin/**");
         //registry.addInterceptor(new LocaleChangeInterceptor());
         //registry.addInterceptor(new ThemeChangeInterceptor()).addPathPatterns("/**").excludePathPatterns("/admin/**");
