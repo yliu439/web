@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DemoService {
 
@@ -14,7 +16,11 @@ public class DemoService {
         this.demoDao = demoDao;
     }
 
-    public int add(Demo demo){
+    int add(Demo demo){
         return demoDao.insert(demo);
+    }
+
+    List<Demo> getAll(){
+        return demoDao.selectAll();
     }
 }
