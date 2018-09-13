@@ -14,7 +14,6 @@ repositories {
 }
 
 dependencies {
-
     //spring-jdbc spring-aop spring-context-support spring-expression spring-tx
     implementation 'org.springframework:spring-webmvc:5.0.9.RELEASE'
     implementation 'org.springframework:spring-aspects:5.0.9.RELEASE'
