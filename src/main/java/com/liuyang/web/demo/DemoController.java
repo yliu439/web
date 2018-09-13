@@ -1,11 +1,13 @@
 package com.liuyang.web.demo;
 
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -26,6 +28,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,9 +36,11 @@ public class DemoController implements ApplicationContextAware {
 
     private final Logger logger = LoggerFactory.getLogger(DemoController.class);
     private final DemoService demoService;
+    private final Environment env;
 
-    public DemoController(DemoService demoService) {
+    public DemoController(DemoService demoService, Environment env) {
         this.demoService = demoService;
+        this.env = env;
     }
 
     @GetMapping(value="/index")
@@ -111,27 +116,12 @@ public class DemoController implements ApplicationContextAware {
 
 //*************************************************文件上传*************************************************************
     @RequestMapping(value="/up")
-    public String upload(HttpServletRequest request, MultipartFile uploadFile) throws IOException {
+    public String upload(HttpServletRequest request, MultipartFile uploadFile) throws Exception {
         if(!uploadFile.isEmpty()) {
-            long size=uploadFile.getSize();
-            String ff=uploadFile.getName();
-            String contentType=uploadFile.getContentType();
-            String path = WebUtils.getRealPath(request.getServletContext(), "jj");
-            String filename = uploadFile.getOriginalFilename();
-            Assert.notNull(filename, "文件名称不能为空!!");
-            File file = new File(path,filename);
-            String filePath=file.getPath();
-            String parentPath=file.getParent();
-            String absolutePath=file.getAbsolutePath();
-            File parentFile=file.getParentFile();
-            String parentFilePath=parentFile.getPath();
-            logger.info("path={},filename={},filePath={},parentPath={},absolutePath={},parentFilePath={}",path,filename,filePath,parentPath,absolutePath,parentFilePath);
-            boolean resultOfMkdir = false;
-            if(!parentFile.exists()) resultOfMkdir=parentFile.mkdir();
-            if(resultOfMkdir) {
-                uploadFile.transferTo(new File(path + File.separator + filename));
-                return "success";
-            }
+            //String path = WebUtils.getRealPath(request.getServletContext(), "jj\\hh");//Web工程的根路径
+            String path=WebUtils.getRealPath(request.getServletContext(), env.getProperty("upload.path.teacher","upload/teacher"));
+            logger.info("path={}",path);
+            return demoService.upload(path, uploadFile);
         }
         return "fail";
     }

@@ -97,11 +97,11 @@ public class MvcConfig implements WebMvcConfigurer {
     }
 
     @Bean(name="viewResolver")
-    public InternalResourceViewResolver internalResourceViewResolver(){
+    public InternalResourceViewResolver internalResourceViewResolver() throws Exception{
         InternalResourceViewResolver internalResourceViewResolver =new InternalResourceViewResolver();
         internalResourceViewResolver.setPrefix(env.getProperty("view.resolver.prefix",""));
         internalResourceViewResolver.setSuffix(env.getProperty("view.resolver.suffix"));
-        internalResourceViewResolver.setViewClass(env.getProperty("view.resolver.suffix",Class.class));
+        internalResourceViewResolver.setViewClass(Class.forName(env.getProperty("view.resolver.view-class")));
         return internalResourceViewResolver;
     }
 }
