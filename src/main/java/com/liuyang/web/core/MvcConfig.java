@@ -5,9 +5,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.core.env.Environment;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -16,7 +19,9 @@ import org.springframework.http.converter.smile.MappingJackson2SmileHttpMessageC
 import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.Mapping;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -30,7 +35,13 @@ import java.util.List;
                })
 public class MvcConfig implements WebMvcConfigurer {
 
-    private final Logger logger = LoggerFactory.getLogger(WebMvcConfigurer.class);
+    private final Logger logger = LoggerFactory.getLogger(MvcConfig.class);
+
+    private final Environment env;
+    @Autowired
+    public MvcConfig(Environment env) {
+        this.env = env;
+    }
 
     //Static Resources  <mvc:resources mapping="/resources/**" location="/public, classpath:/static/" cache-period="31556926" />
     @Override
@@ -60,7 +71,6 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-
         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
                 .indentOutput(true)
                 //.dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
@@ -74,5 +84,24 @@ public class MvcConfig implements WebMvcConfigurer {
 //        converters.add(new MappingJackson2XmlHttpMessageConverter());
 //        converters.add(new MappingJackson2SmileHttpMessageConverter());
 //        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+    }
+
+    //该组件需要org.apache.commons.fileupload.，参见CommonsMultipartResolver源码
+    @Bean(name="multipartResolver")
+    public CommonsMultipartResolver commonsMultipartResolver(){
+        CommonsMultipartResolver commonsMultipartResolver =new CommonsMultipartResolver();
+        commonsMultipartResolver.setDefaultEncoding(env.getProperty("multipart.resolver.default-encoding","UTF-8"));
+        commonsMultipartResolver.setMaxUploadSize(env.getProperty("multipart.resolver.max-upload-size",Long.class,10000000L));
+        commonsMultipartResolver.setPreserveFilename(env.getProperty("multipart.resolver.preserve-filename",Boolean.class,false));
+        return commonsMultipartResolver;
+    }
+
+    @Bean(name="viewResolver")
+    public InternalResourceViewResolver internalResourceViewResolver(){
+        InternalResourceViewResolver internalResourceViewResolver =new InternalResourceViewResolver();
+        internalResourceViewResolver.setPrefix(env.getProperty("view.resolver.prefix",""));
+        internalResourceViewResolver.setSuffix(env.getProperty("view.resolver.suffix"));
+        internalResourceViewResolver.setViewClass(env.getProperty("view.resolver.suffix",Class.class));
+        return internalResourceViewResolver;
     }
 }

@@ -14,5 +14,7 @@
 
     <logger name="com.liuyang.web" level="debug"/>
     <logger name="druid.sql.Statement" level="debug"/>
+    <logger name="org.springframework.web.servlet" level="debug"/>
+
 
 </configuration>
