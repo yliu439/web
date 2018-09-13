@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class DemoController implements ApplicationContextAware {
@@ -45,10 +47,19 @@ public class DemoController implements ApplicationContextAware {
         return demoService.add(demo);
     }
 
-    @GetMapping(value="/beans")
-    public List<Object> getBeans(){
+    //要求返回XML文件
+    //需要配置对应的MappingJackson2XmlHttpMessageConverter进行处理
+    @GetMapping(value="/beans",produces = MediaType.APPLICATION_XML_VALUE)
+    public List<String> getBeans(){
         Arrays.stream(DemoController.applicationContext.getBeanDefinitionNames()).forEach(logger::debug);
-        return null;
+        return Arrays.stream(DemoController.applicationContext.getBeanDefinitionNames()).collect(Collectors.toList());
+    }
+
+    @GetMapping(value="/all")
+    public List<Demo> getAll(){
+        //Arrays.stream(DemoController.applicationContext.getBeanDefinitionNames()).forEach(logger::debug);
+        //return Arrays.stream(DemoController.applicationContext.getBeanDefinitionNames()).collect(Collectors.toList());
+        return demoService.getAll();
     }
 
     private LocalDateTime string2LocalDateTime(String time, String format){
