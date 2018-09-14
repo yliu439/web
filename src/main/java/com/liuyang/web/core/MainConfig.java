@@ -13,6 +13,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -21,9 +23,11 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Configuration
+@EnableAsync
 @PropertySource("classpath:application.properties")
 @ComponentScan(basePackages = {"com.liuyang.web"},
         useDefaultFilters = false,
@@ -106,6 +110,21 @@ public class MainConfig {
         return beanTypeAutoProxyCreator;
     }
 
+    @Bean(name="poolTaskExecutor")
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
+        logger.debug("配置异步线程池........");
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10); // 线程池维护线程的最少数量
+        executor.setMaxPoolSize(20); // 线程池维护线程的最大数量
+        executor.setKeepAliveSeconds(300); // 空闲线程的最长保留时间,超过此时间空闲线程会被回收
+        executor.setQueueCapacity(100); // 线程池所使用的缓冲队列
+        executor.setThreadNamePrefix("MAIN-ThreadPool#");
+        // rejection-policy：当线程池线程已达到最大值且任务队列也满了的情况下，如何处理新任务
+        // CALLER_RUNS：这个策略重试添加当前的任务，他会自动重复调用 execute() 方法，直到成功
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.afterPropertiesSet();//Calls { after the container applied all property values.
+        return executor;
+    }
 
 
 }

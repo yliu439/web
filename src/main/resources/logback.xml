@@ -8,11 +8,11 @@
         </encoder>
     </appender>
 
-    <root level="info">
+    <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
 
-    <logger name="com.liuyang.web" level="info"/>
+    <logger name="com.liuyang.web" level="debug"/>
     <logger name="druid.sql.Statement" level="debug"/>
     <!--<logger name="org.springframework.web.servlet" level="debug"/>-->
 
