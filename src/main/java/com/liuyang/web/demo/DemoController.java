@@ -148,7 +148,7 @@ public class DemoController implements ApplicationContextAware {
         return "fail";
     }
 
-//*************************************************异步访问*************************************************************
+//*************************************************异步访问>>>@Async****************************************************
 
     /*
      * 通过@Async 注解配置异步
@@ -194,7 +194,7 @@ public class DemoController implements ApplicationContextAware {
         return "成功！";
     }
 
-
+//*************************************************异步访问>>>@Callable*************************************************
     @RequestMapping(value = "/callable", method = RequestMethod.GET)
     public Callable<String> getCallableMessage() {
         logger.debug("请求{}方法,线程id:{},线程名称:{}", "callable", Thread.currentThread().getId(),Thread.currentThread().getName());
@@ -249,15 +249,15 @@ public class DemoController implements ApplicationContextAware {
 
     @GetMapping("/events")
     public ResponseBodyEmitter handle() throws Exception{
+        logger.debug("请求{}方法,线程id:{},线程名称:{}", "events", Thread.currentThread().getId(),Thread.currentThread().getName());
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
-        processAsyncResult(emitter,5L);
+        processAsyncResult(emitter,3L);
         return emitter;
     }
 
-    @Async
     void processAsyncResult(ResponseBodyEmitter emitter, Long  eventNumber) throws Exception{
         for (long i = 1; i <= eventNumber; i++) {
-            logger.info("**********************************{}*********************************",i);
+            logger.debug("请求{}方法,线程id:{},线程名称:{}", "processAsyncResult", Thread.currentThread().getId(),Thread.currentThread().getName());
             Thread.sleep(3000);
             emitter.send("msg" + i + "\r\n");
         }
