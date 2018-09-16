@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
@@ -39,6 +40,8 @@ public class DemoController implements ApplicationContextAware {
     private final Logger logger = LoggerFactory.getLogger(DemoController.class);
     private final DemoService demoService;
     private final Environment env;
+    @Autowired
+    private  RedisTemplate<String,Object> template;
 
     public DemoController(DemoService demoService, Environment env) {
         this.demoService = demoService;
@@ -146,6 +149,33 @@ public class DemoController implements ApplicationContextAware {
             }
         }
         return "fail";
+    }
+
+    //*********************************************************Redis********************************************************
+    @RequestMapping("/redisAdd")
+    public String redisAdd(@RequestParam String key,@RequestParam String value){
+        template.opsForValue().set(key,value);
+        return "success";
+    }
+
+    @RequestMapping("/redisGet")
+    public String redisGet(@RequestParam String key){
+        return (String)template.opsForValue().get(key);
+    }
+    @RequestMapping("/redisAddObject")
+    public String redisAddObject(@RequestParam String key){
+        Demo demo=new Demo();
+        demo.setId(1L);
+        demo.setName("ly");
+        demo.setAlias("刘洋");
+        demo.setBirthday(LocalDateTime.now());
+        template.boundValueOps(key).set(demo);
+        return "success";
+    }
+
+    @RequestMapping("/redisGetObject")
+    public Demo redisGetObject(@RequestParam String key){
+        return (Demo)template.opsForValue().get(key);
     }
 
 //*************************************************异步访问>>>@Async****************************************************
