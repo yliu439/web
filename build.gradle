@@ -1,6 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'war'
-apply plugin: "idea"
+apply plugin: 'idea'
 
 group 'com.liuyang.web'
 version '1.0-SNAPSHOT'
@@ -11,35 +11,33 @@ targetCompatibility = 1.8
 repositories {
     mavenLocal()
     mavenCentral()
+    jcenter()
+    google()
 }
 
 dependencies {
-    //spring-jdbc spring-aop spring-context-support spring-expression spring-tx
     implementation 'org.springframework:spring-webmvc:5.0.9.RELEASE'
     implementation 'org.springframework:spring-aspects:5.0.9.RELEASE'
     implementation 'org.springframework:spring-jdbc:5.0.9.RELEASE'
-    //该jar包含在spring-webmvc依赖列表中
-    //implementation 'org.springframework:spring-web:5.0.9.RELEASE'
+
+    implementation 'org.springframework.data:spring-data-redis:2.0.10.RELEASE'
+    implementation 'io.lettuce:lettuce-core:5.0.5.RELEASE'
 
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'com.alibaba:druid:1.1.10'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.6'
-    //支持XML文件处理
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.6'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-smile:2.9.6'
-    //支持java8的localdatatime类型
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.6'
     implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.9.6'
 
-    //支持文件上传
     implementation 'commons-fileupload:commons-fileupload:1.3.3'
-    //支持获取文件真实类型
     implementation 'org.apache.tika:tika-core:1.18'
-    //支持CVS文件解析
     implementation 'org.apache.commons:commons-csv:1.5'
 
     implementation files('lib/ojdbc8.jar')
+
     compileOnly 'org.projectlombok:lombok:1.18.2'
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
 
