@@ -6,6 +6,8 @@ import com.alibaba.druid.filter.stat.StatFilter;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.support.spring.stat.BeanTypeAutoProxyCreator;
 import com.alibaba.druid.support.spring.stat.DruidStatInterceptor;
+import net.spy.memcached.*;
+import net.spy.memcached.transcoders.SerializingTranscoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -117,6 +120,7 @@ public class MainConfig {
         return beanTypeAutoProxyCreator;
     }
 
+    //Redis配置
     @Bean(name="redisConnectionFactory")
     public LettuceConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(
@@ -129,7 +133,7 @@ public class MainConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         Jackson2JsonRedisSerializer jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         StringRedisSerializer stringRedisSerializer=new StringRedisSerializer();
-//        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer=new GenericJackson2JsonRedisSerializer();
+        //GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer=new GenericJackson2JsonRedisSerializer();
         redisTemplate.setKeySerializer(stringRedisSerializer);
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
 
@@ -137,6 +141,28 @@ public class MainConfig {
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+
+    //Memcached配置使用原生的Client
+    @Bean
+    public MemcachedClient memcachedClient(SerializingTranscoder serializingTranscoder) throws IOException {
+        return new MemcachedClient(new ConnectionFactoryBuilder()
+                .setProtocol(ConnectionFactoryBuilder.Protocol.BINARY)
+                .setLocatorType(ConnectionFactoryBuilder.Locator.CONSISTENT)
+                .setOpTimeout(1000)
+                .setHashAlg(DefaultHashAlgorithm.KETAMA_HASH)
+                .setFailureMode(FailureMode.Redistribute)
+                .setTimeoutExceptionThreshold(1998)
+                .setUseNagleAlgorithm(false)
+                .setTranscoder(serializingTranscoder)
+                .build(),
+                AddrUtil.getAddresses(env.getProperty("spymemcached.servers","127.0.0.1:11211")));
+    }
+    @Bean
+    public SerializingTranscoder serializingTranscoder(){
+        SerializingTranscoder serializingTranscoder=new SerializingTranscoder();
+        serializingTranscoder.setCompressionThreshold(1024);
+        return serializingTranscoder;
     }
 
     @Bean(name="poolTaskExecutor")

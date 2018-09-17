@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.Assert;
@@ -58,8 +59,14 @@ public class DemoController implements ApplicationContextAware {
         return "Hello Admin!";
     }
 
+    //String 解析为LocalDateTime
+    @GetMapping(value="/time1")
+    public void time1(@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam LocalDateTime time1){
+        logger.info("{},{}",time1,time1.getClass().getName());
+    }
+
     @GetMapping(value="/add")
-    public int add(@RequestParam String name,@RequestParam String alise, @RequestParam String birthday){
+    public int add(@RequestParam String name,@RequestParam String alise, @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam String birthday){
         Demo demo=new Demo();
         demo.setName(name);
         demo.setAlias(alise);
