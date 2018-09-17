@@ -1,0 +1,18 @@
+fasterxml.jackson序列化：
+    1、序列化依赖于 public 修饰的getter方法和public修饰的属性，如果某个非public字段没有getter方法，那么该字段是不会被序列化的
+    2、序列化时并不真正地检查public 修饰的getter对应的属性是否存在于对象(Object)上，而是通过getter的命名规约进行调用，
+        换句话说就是满足getter命名规约的方法即使不存在对应的属性也会被序列化。
+
+fasterxml.jackson反序列化：
+    1、反序列化时通过调用Json中字段所对应属性的的setter方法进行反序列化的。并且此时，依赖于对象上有默认的构造函数，
+        因为是先需要通过默认构造函数new一个对象，然后在调用对应属性的setter方法
+
+fasterxml.jackson一些注解：
+    @JsonInclude(JsonInclude.Include.NON_NULL)：表示在序列化时，将值为null的字段排除掉
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)：表示在序列化时，将值为null的字段或者空的字符串字段排除掉
+    @JsonIgnore：用于字段上，表示该字段在序列化和反序列化的时候都将被忽略
+    @JsonIgnoreProperties(value = {"propertiesName1","propertiesName2"},ignoreUnknown = true)：
+        表示对于propertiesName1和propertiesName2字段，反序列化和序列化均忽略，
+        而对于Json中存在的未知字段，在反序列化时忽略，ignoreUnknown不对反序列化起效
+
+objectMapper.configure(SerializationFeature.INDENT_OUTPUT,true);是否缩放排列输出，默认false，有些场合为了便于排版阅读则需要对输出做缩放排列
